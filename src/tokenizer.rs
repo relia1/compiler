@@ -33,7 +33,6 @@ macro_rules! pat {
     };
 }
 
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Token {
     // {
@@ -54,23 +53,15 @@ pub enum Token {
     Identifier(String),
     // [0-9]+
     IntLiteral(u32),
-    //
-    Program,
-    Function,
 }
-
 
 #[derive(Debug, Clone)]
 pub struct Tokens {
     pub all_tokens: Vec<Token>,
-    //pub start: u64,
-    //pub end: u64,
 }
-
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct ParseTokenError;
-
 
 // used this as a reference
 // https://brunocalza.me/writing-a-simple-lexer-in-rust/
@@ -93,7 +84,9 @@ impl FromStr for Tokens {
                     ';' => Token::Semicolon,
                     '0'..='9' => {
                         let num: u32 = iter::once(character)
-                            .chain(from_fn(|| char_iter.by_ref().next_if(|c| c.is_ascii_digit())))
+                            .chain(from_fn(|| {
+                                char_iter.by_ref().next_if(|c| c.is_ascii_digit())
+                            }))
                             .collect::<String>()
                             .parse()
                             .unwrap();
@@ -101,26 +94,21 @@ impl FromStr for Tokens {
                     }
                     'a'..='z' | 'A'..='Z' => {
                         let iden: String = iter::once(character)
-                            .chain(from_fn(|| char_iter.by_ref().next_if(|c| c.is_alphanumeric())))
+                            .chain(from_fn(|| {
+                                char_iter.by_ref().next_if(|c| c.is_alphanumeric())
+                            }))
                             .collect::<String>();
                         match iden.as_str() {
                             "return" => Token::KeywordReturn,
                             "int" => Token::KeywordInt,
                             _ => Token::Identifier(iden),
                         }
-                    },
-                    _ => {
-                        println!("Unexpected match to _");
-                        println!("tokens: {:?}", tokens);
-                        let var_name = Err(ParseTokenError);
-                        return var_name.expect("REASON");
-                    },
+                    }
+                    _ => panic!("Unexpected match to _\ntokens: {:?}", tokens),
                 };
                 tokens.push(token);
-            };
+            }
         });
         Ok(Self { all_tokens: tokens })
     }
 }
-
-

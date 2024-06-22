@@ -1,13 +1,13 @@
-mod tokenizer;
-mod source;
-mod parser;
 mod ast;
 mod generator;
+mod parser;
+mod source;
+mod tokenizer;
 
-use std::{env, io::Write};
 use generator::emit_asm_in_order;
-use tokenizer::*;
 use std::fs::File;
+use std::{env, io::Write};
+use tokenizer::*;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -20,7 +20,7 @@ fn main() {
     println!("ast: {:?}", ast);
     let asm = emit_asm_in_order(&ast);
     let mut output_file = File::create("return_2.s").expect("Unable to create file");
-    output_file.write_all(asm.as_bytes()).expect("Unable to write data");
-    //let tokens: Tokens = tokenizer::Tokens::new(&source_code);
-    //println!("tokens: {:?}", tokens);
+    output_file
+        .write_all(asm.as_bytes())
+        .expect("Unable to write data");
 }
