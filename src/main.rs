@@ -16,7 +16,12 @@ fn main() {
     let source_code = source::Source::new(&args[1]);
     let tokens = source_code.file_contents.parse::<Tokens>().unwrap();
     println!("parse: {:?}", tokens);
-    let ast = parser::parse_program(&tokens);
+    let ast = match parser::parse_program(&tokens) {
+        Ok(ast) => ast,
+        Err(e) => {
+            panic!("Parsing error: {}", e);
+        }
+    };
     println!("ast: {:?}", ast);
     let asm = emit_asm_in_order(&ast);
     let mut output_file = File::create("return_2.s").expect("Unable to create file");
