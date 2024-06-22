@@ -8,18 +8,17 @@ use crate::{
 
 // <program> ::= <function>
 pub fn parse_program(tokens: &Tokens) -> Ast {
-    let binding = tokens.clone();
-    let token_iter = binding.all_tokens.iter().collect::<Vec<_>>();
+    let mut token_iter = tokens.all_tokens.iter();// .clone();
     let mut root = Ast {
         token_type: TokenType::AstRoot,
         children: vec![],
     };
-    root.children.push(parse_function(&mut token_iter.iter()));
+    root.children.push(parse_function(&mut token_iter));
     root
 }
 
 // <function> ::= "int" <id> "(" ")" "{" <statement> "}"
-pub fn parse_function(token_iter: &mut Iter<&Token>) -> Ast {
+pub fn parse_function(token_iter: &mut Iter<Token>) -> Ast {
     let mut token = token_iter.next();
     if token.is_none() {
         panic!("Token should not be none");
@@ -30,9 +29,8 @@ pub fn parse_function(token_iter: &mut Iter<&Token>) -> Ast {
         _ => panic!("Expected keyword int"),
     };
 
-    token = token_iter.next();
-    let function_name = match token {
-        Some(Token::Identifier(val)) => val,
+    let function_name = match token_iter.next() {
+        Some(Token::Identifier(val)) => val.clone(),
         _ => panic!("Expected identifier"),
     };
 
@@ -64,7 +62,7 @@ pub fn parse_function(token_iter: &mut Iter<&Token>) -> Ast {
 }
 
 // <statement> ::= "return" <exp> ";"
-pub fn parse_statement(token_iter: &mut Iter<&Token>) -> Ast {
+pub fn parse_statement(token_iter: &mut Iter<Token>) -> Ast {
     let mut token = token_iter.next();
     match token {
         Some(Token::KeywordReturn) => {}
@@ -78,14 +76,12 @@ pub fn parse_statement(token_iter: &mut Iter<&Token>) -> Ast {
 
     statement_node.children.push(parse_exp(token_iter));
 
-    token = token_iter.next();
-    match token {
+    match token_iter.next() {
         Some(Token::Semicolon) => {}
         val => panic!("Expected ';' at end of statement, found {:?}", val),
     };
 
-    token = token_iter.next();
-    match token {
+    match token_iter.next() {
         Some(Token::ClosedBrace) => {}
         _ => panic!("Expected closing brace }}"),
     };
@@ -94,17 +90,14 @@ pub fn parse_statement(token_iter: &mut Iter<&Token>) -> Ast {
 }
 
 // <exp> ::= <int>
-pub fn parse_exp(token_iter: &mut Iter<&Token>) -> Ast {
-    //let mut peeked_token = token_iter.peekable();
-    //let mut binding = token_iter.peekable();
+pub fn parse_exp(token_iter: &mut Iter<Token>) -> Ast {
     let number = match token_iter.next() {
-        //binding.peek() {
-        Some(Token::IntLiteral(num)) => num,
-        val => panic!("Expected integer literal found {:?}", val),
+        Some(Token::IntLiteral(num)) => *num,
+        _ => panic!("Expected integer literal"),
     };
 
     Ast {
-        token_type: TokenType::Expression(*number),
+        token_type: TokenType::Expression(number),
         children: vec![],
     }
 }
