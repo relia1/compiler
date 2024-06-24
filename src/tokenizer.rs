@@ -53,6 +53,12 @@ pub enum Token {
     Identifier(String),
     // [0-9]+
     IntLiteral(u32),
+    // Negation -
+    Negation,
+    // Bitwise complement ~
+    BitwiseComplement,
+    // Logical Negation !
+    LogicalNegation,
 }
 
 #[derive(Debug, Clone)]
@@ -82,6 +88,9 @@ impl FromStr for Tokens {
                     '(' => Token::OpenParen,
                     ')' => Token::ClosedParen,
                     ';' => Token::Semicolon,
+                    '-' => Token::Negation,
+                    '~' => Token::BitwiseComplement,
+                    '!' => Token::LogicalNegation,
                     '0'..='9' => {
                         let num: u32 = iter::once(character)
                             .chain(from_fn(|| {

@@ -11,20 +11,21 @@ use tokenizer::*;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    println!("file {}", &args[1]);
+    // println!("file {}", &args[1]);
 
     let source_code = source::Source::new(&args[1]);
     let tokens = source_code.file_contents.parse::<Tokens>().unwrap();
-    println!("parse: {:?}", tokens);
+    // println!("parse: {:?}", tokens);
     let ast = match parser::parse_program(&tokens) {
         Ok(ast) => ast,
         Err(e) => {
             panic!("Parsing error: {}", e);
         }
     };
-    println!("ast: {:?}", ast);
+    // println!("ast: {:?}", ast);
     let asm = emit_asm_in_order(&ast);
-    let mut output_file = File::create("return_2.s").expect("Unable to create file");
+    let output_filename = &args[1].replace(".c",".s");
+    let mut output_file = File::create(output_filename).expect("Unable to create file");
     output_file
         .write_all(asm.as_bytes())
         .expect("Unable to write data");

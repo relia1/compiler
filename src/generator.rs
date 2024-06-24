@@ -1,11 +1,10 @@
 // Generate the assembly from an in order traveral of the AST
-
-use crate::ast::{Ast, TokenType};
+use crate::ast::{Ast, Program};
 
 pub fn emit_asm_in_order(ast_root: &Ast) -> String {
     match &ast_root.token_type {
-        TokenType::AstRoot => {
-            format!(".globl {}", emit_asm_in_order(&ast_root.children[0]))
+        Program::AstRoot => {
+            format!(&ast_root.to_asm() , emit_asm_in_order(&ast_root.children[0]))
         }
         TokenType::Function(fn_name) => {
             format!(
